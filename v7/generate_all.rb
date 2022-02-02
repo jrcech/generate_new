@@ -1,55 +1,63 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+# Run `diff v7/generated/default v7/generated/mysql -ur -X .diffignore` for diff.
+
 require 'rails'
 require 'rainbow'
 require 'tty-command'
 
 logger = Logger.new('generation.log')
+diff_logger = Logger.new('diff.log')
 
 cmd = TTY::Command.new(printer: :quiet, pty: true)
 
 applications = [
-  'rails new default',
-  'rails new mysql --database=mysql',
-  'rails new postgresql --database=postgresql',
-  'rails new skip_git --skip-git',
-  'rails new skip_keeps --skip-keeps',
-  'rails new skip_action_mailer --skip-action-mailer',
-  'rails new skip_action_mailbox --skip-action-mailbox',
-  'rails new skip_action_text --skip-action-text',
-  'rails new skip_active_record --skip-active-record',
-  'rails new skip_active_job --skip-active-job',
-  'rails new skip_active_storage --skip-active-storage',
-  'rails new skip_action_cable --skip-action-cable',
-  'rails new skip_asset-pipeline --skip-asset-pipeline',
-  'rails new propshaft --asset-pipeline=propshaft',
-  'rails new skip_javascript --skip-javascript',
-  'rails new skip_hotwire --skip-hotwire',
-  'rails new skip_jbuilder --skip-jbuilder',
-  'rails new skip_test --skip-test',
-  'rails new skip_system_test --skip-system-test',
-  'rails new skip_bootsnap --skip-bootsnap',
-  'rails new api --api',
-  'rails new minimal --minimal',
-  'rails new webpack --javascript=webpack',
-  'rails new esbuild --javascript=esbuild',
-  'rails new rollup --javascript=rollup',
-  'rails new tailwind --css=tailwind',
-  'rails new bootstrap --css=bootstrap',
-  'rails new postcss --css=postcss'
+  'default',
+  # 'mysql --database=mysql', NOT WORKING
+  'postgresql --database=postgresql',
+  'skip_git --skip-git',
+  'skip_keeps --skip-keeps',
+  'skip_action_mailer --skip-action-mailer',
+  'skip_action_mailbox --skip-action-mailbox',
+  'skip_action_text --skip-action-text',
+  'skip_active_record --skip-active-record',
+  'skip_active_job --skip-active-job',
+  'skip_active_storage --skip-active-storage',
+  'skip_action_cable --skip-action-cable',
+  'skip_asset-pipeline --skip-asset-pipeline',
+  'propshaft --asset-pipeline=propshaft',
+  'skip_javascript --skip-javascript',
+  'skip_hotwire --skip-hotwire',
+  'skip_jbuilder --skip-jbuilder',
+  'skip_test --skip-test',
+  'skip_system_test --skip-system-test',
+  'skip_bootsnap --skip-bootsnap',
+  'api --api',
+  'minimal --minimal',
+  'webpack --javascript=webpack',
+  'esbuild --javascript=esbuild',
+  'rollup --javascript=rollup',
+  'tailwind --css=tailwind',
+  'bootstrap --css=bootstrap',
+  'postcss --css=postcss'
 ]
 
 applications.each do |application|
-  running_message = Rainbow("Running '#{application}'").yellow
-  finished_message = Rainbow("Finished running '#{application}'").green
+  running_message = Rainbow("Running 'rails new #{application}'").yellow
+  finished_message = Rainbow("Finished running 'rails new #{application}'").green
 
   puts running_message
   logger.info running_message
 
-  result = cmd.run application
+  result = cmd.run "rails new generated/#{application}"
   logger.info result.out
 
   puts finished_message
   logger.info finished_message
+
+  # next if application.split.first == 'default'
+  #
+  # diff_result = cmd.run "diff ./generated/default ./generated/#{application.split.first} -ur -X .diffignore"
+  # # diff_logger.info diff_result.out
 end
