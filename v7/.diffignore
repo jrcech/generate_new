@@ -5,3 +5,5 @@ tmp
 credentials.yml.enc
 master.key
 .idea
+node_modules
+builds
